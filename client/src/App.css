@@ -1,0 +1,27 @@
+.text-sm {
+	font-size: 0.875rem;
+	line-height: 2rem;
+}
+.group:hover .group-hover\:blink-blue-circle {
+	border-radius: 50%;
+	border: 4px solid #3b82f6;
+	animation: blink-blue 1s infinite;
+}
+@keyframes blink-blue {
+	0%, 100% { box-shadow: 0 0 0 4px #3b82f6; }
+	50% { box-shadow: 0 0 16px 8px #3b82f6; }
+}
+.blink-blue-circle {
+	border-radius: 50%;
+	border: 4px solid #3b82f6;
+	animation: blink-blue 1s infinite;
+}
+@keyframes blink {
+	0%, 100% { box-shadow: 0 0 0 4px red; }
+	50% { box-shadow: 0 0 16px 8px red; }
+}
+.blink-red-circle {
+	border-radius: 50%;
+	border: 4px solid red;
+	animation: blink 1s infinite;
+}
