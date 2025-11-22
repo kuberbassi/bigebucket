@@ -34,6 +34,8 @@ if (fs.existsSync(envPath)) {
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import helmet from 'helmet'
+import mongoose from 'mongoose'
+import compression from 'compression'
 
 // Database configuration
 import connectDB from './config/connectDB.js'
@@ -87,6 +89,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(cors(corsOptions))
+app.use(compression()) // Enable gzip compression for better performance
 app.use(express.json())
 // Parse application/x-www-form-urlencoded for form POSTs
 app.use(express.urlencoded({ extended: true }))
@@ -127,7 +130,7 @@ app.get('/api/health', (request, response) => {
         status: 'running',
         port: PORT,
         nodeEnv: process.env.NODE_ENV,
-        mongoConnected: require('mongoose').connection.readyState === 1
+        mongoConnected: mongoose.connection.readyState === 1
     })
 })
 

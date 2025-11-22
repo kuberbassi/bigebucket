@@ -89,6 +89,46 @@ public_html/
 6.  **Restart:**
     - Click "Restart Application".
 
+## 🔧 Troubleshooting
+
+### MongoDB Connection Issues
+
+If you see "Loading categories..." and no products:
+
+1.  **Check MongoDB Atlas IP Whitelist:**
+    - Go to MongoDB Atlas → Network Access
+    - Add your current IP or use `0.0.0.0/0` for development (allows all IPs)
+
+2.  **Verify MongoDB URI:**
+    - Ensure `MONGODB_URI` is set in `server/.env`
+    - Check format: `mongodb+srv://username:password@cluster.mongodb.net/?appName=bigebucket`
+    - Special characters in password must be URL-encoded
+
+3.  **Test Connection:**
+    - Check `/api/health` endpoint: should show `mongoConnected: true`
+    - Check server logs for connection errors
+
+### Products Not Loading
+
+- Verify MongoDB is connected (`/api/health` shows `mongoConnected: true`)
+- Check browser console for API errors
+- Verify API endpoints are accessible (e.g., `/api/product`)
+
+### cPanel Deployment Issues
+
+1.  **404 Errors on Assets:**
+    - Check `public/assets` folder permissions (should be 755)
+    - Verify files extracted correctly from deployment zip
+
+2.  **Server Won't Start:**
+    - Check Node.js version (18.x or 20.x recommended)
+    - Verify `app.js` is set as Application Startup File
+    - Check Application Root is set to `public_html`
+
+3.  **Environment Variables:**
+    - All variables from `.env` must be added in cPanel Node.js App settings
+    - Use `.env.example` as a reference for required variables
+
 ## 📝 License
 
 This project is licensed under the MIT License.
