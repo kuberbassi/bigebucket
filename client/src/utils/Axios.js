@@ -1,14 +1,18 @@
 import axios from "axios";
-import SummaryApi , { baseURL } from "../common/SummaryApi";
+import SummaryApi from "../common/SummaryApi";
+// Removed: import { baseURL } from "../common/SummaryApi";
 
-// Create axios instance with build-time baseURL (may be empty). We'll
-// also attempt to fetch a runtime config `/runtime-config` on the first
-// request and override `baseURL` if the server provides an `apiBaseUrl`.
+// --- START: CHANGES APPLIED HERE ---
+// 1. Remove the dynamic baseURL check.
+// 2. Set baseURL to the relative path '/api'. 
+//    This works because .htaccess redirects /api to the Node server on port 8080.
 const Axios = axios.create({
-    baseURL : baseURL || '',
+    baseURL : '/api', 
     withCredentials : true
 })
 
+// --- START: DELETED CODE (loadRuntimeConfig and its logic) ---
+/*
 let runtimeConfigPromise = null
 const loadRuntimeConfig = () => {
     if (runtimeConfigPromise) return runtimeConfigPromise
@@ -24,18 +28,14 @@ const loadRuntimeConfig = () => {
         })
     return runtimeConfigPromise
 }
+*/
+// --- END: DELETED CODE ---
+
 
 //sending access token in the header
 Axios.interceptors.request.use(
     async(config)=>{
-        // Ensure runtime config is loaded before the first request so
-        // the instance has the correct `baseURL` in production on hosts
-        // where the backend URL is provided at runtime.
-        try {
-            await loadRuntimeConfig()
-        } catch (e) {
-            // ignore
-        }
+        // DELETED: await loadRuntimeConfig() logic is no longer needed
 
         const accessToken = localStorage.getItem('accesstoken')
         if(accessToken){
@@ -83,6 +83,7 @@ Axios.interceptors.response.use(
 const refreshAccessToken = async (refreshToken) => {
     try {
         // use plain axios to avoid recursive interceptors
+        // NOTE: If SummaryApi is using a base URL, this must be verified, but for now we trust the original logic.
         const axiosLib = await import('axios').then(m => m.default)
         const response = await axiosLib({
             url: SummaryApi.refreshToken.url,
