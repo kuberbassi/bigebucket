@@ -68,6 +68,80 @@ export const addToCartItemController = async (request, response) => {
     }
 }
 
+export const bulkAddToCartController = async (request, response) => {
+    try {
+        const userId = request.userId
+        const { items } = request.body // Array of { productId, quantity }
+
+        if (!userId) {
+            return response.status(401).json({
+                message: 'You have not login',
+                error: true,
+                success: false
+            })
+        }
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return response.status(400).json({
+                message: "Provide items array",
+                error: true,
+                success: false
+            })
+        }
+
+        let addedCount = 0
+        const productIdsToAdd = []
+
+        for (const item of items) {
+            const productId = item?.productId?._id || item?.productId
+            const quantity = item?.quantity || 1
+
+            if (!productId) continue
+
+            // Check if item exists
+            const exists = await CartProductModel.findOne({
+                userId: userId,
+                productId: productId
+            })
+
+            if (exists) {
+                continue
+            }
+
+            const cartItem = new CartProductModel({
+                quantity: quantity,
+                userId: userId,
+                productId: productId
+            })
+            await cartItem.save()
+            productIdsToAdd.push(productId)
+            addedCount++
+        }
+
+        if (productIdsToAdd.length > 0) {
+            await UserModel.updateOne({ _id: userId }, {
+                $addToSet: {
+                    shopping_cart: { $each: productIdsToAdd }
+                }
+            })
+        }
+
+        return response.json({
+            message: `${addedCount} items migrated successfully`,
+            error: false,
+            success: true,
+            data: { addedCount }
+        })
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        })
+    }
+}
+
 export const getCartItemController = async (request, response) => {
     try {
         const userId = request.userId

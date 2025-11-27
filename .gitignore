@@ -35,3 +35,4 @@ yarn-error.log*
 # Deployment bundles
 deployment.zip
 deployment_final.zip
+project_deploy.zip

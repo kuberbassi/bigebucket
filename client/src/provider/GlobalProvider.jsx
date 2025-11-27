@@ -46,26 +46,26 @@ const GlobalProvider = ({ children }) => {
     console.log('Migrating local cart to server:', localCartItems.length, 'items')
 
     try {
-      // Add each local cart item to server
-      for (const item of localCartItems) {
-        const productId = item?.productId?._id || item?.productId
-        if (!productId) continue
+      // Prepare items for bulk add
+      const itemsToMigrate = localCartItems.map(item => ({
+        productId: item?.productId?._id || item?.productId,
+        quantity: item?.quantity || 1
+      })).filter(item => item.productId)
 
-        try {
-          await Axios({
-            ...SummaryApi.addTocart,
-            data: { productId }
-          })
-          console.log('Migrated item:', productId)
-        } catch (err) {
-          // Continue even if one item fails
-          console.warn('Failed to migrate item:', productId, err)
-        }
+      if (itemsToMigrate.length === 0) return
+
+      // Single bulk request
+      const response = await Axios({
+        ...SummaryApi.bulkAddTocart,
+        data: { items: itemsToMigrate }
+      })
+
+      if (response.data.success) {
+        console.log('Migration successful:', response.data.message)
+        toast.success('Cart items restored!')
+        // Fetch updated cart
+        await fetchCartItem()
       }
-
-      // After migration, fetch the complete server cart
-      await fetchCartItem()
-      toast.success('Cart items restored!')
     } catch (error) {
       console.error('Cart migration error:', error)
     }

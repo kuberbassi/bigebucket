@@ -114,6 +114,14 @@ const SummaryApi = {
         url: "/cart/create",
         method: 'post'
     },
+    bulkAddTocart: {
+        url: "/cart/bulk-add",
+        method: 'post'
+    },
+    addToCartProductView: {
+        url: "/cart/view",
+        method: 'get'
+    },
     getCartItem: {
         url: '/cart/get',
         method: 'get'
