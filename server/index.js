@@ -50,6 +50,7 @@ import cartRouter from './routes/cart.route.js'
 import addressRouter from './routes/address.route.js'
 import orderRouter from './routes/order.route.js'
 import ccavRouter from './routes/ccav.route.js'
+import settingsRouter from './routes/settings.route.js'
 
 // Initialize Express application
 const app = express()
@@ -143,6 +144,7 @@ app.use("/api/cart", cartRouter)
 app.use("/api/address", addressRouter)
 app.use('/api/order', orderRouter)
 app.use('/api/ccav', ccavRouter)
+app.use('/api/settings', settingsRouter)
 
 // --- ROBUST PATH FINDER ---
 function findPublicDir() {

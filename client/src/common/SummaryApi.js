@@ -162,6 +162,39 @@ const SummaryApi = {
     getOrderItems: {
         url: '/order/order-list',
         method: 'get'
+    },
+    // Settings endpoints
+    getAllSettings: {
+        url: '/settings/get-all',
+        method: 'get'
+    },
+    getSettingsMap: {
+        url: '/settings/get-map',
+        method: 'get'
+    },
+    getSettingsByCategory: {
+        url: '/settings/category',
+        method: 'get'
+    },
+    updateSetting: {
+        url: '/settings/update',
+        method: 'put'
+    },
+    bulkUpdateSettings: {
+        url: '/settings/bulk-update',
+        method: 'put'
+    },
+    resetSetting: {
+        url: '/settings/reset',
+        method: 'put'
+    },
+    resetAllSettings: {
+        url: '/settings/reset-all',
+        method: 'put'
+    },
+    initializeSettings: {
+        url: '/settings/initialize',
+        method: 'post'
     }
 }
 

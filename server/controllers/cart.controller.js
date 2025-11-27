@@ -1,11 +1,11 @@
 import CartProductModel from "../models/cartproduct.model.js";
 import UserModel from "../models/user.model.js";
 
-export const addToCartItemController = async(request,response)=>{
+export const addToCartItemController = async (request, response) => {
     try {
-        const  userId = request.userId
+        const userId = request.userId
 
-        if(!userId){
+        if (!userId) {
             return response.status(401).json({
                 message: 'You have not login',
                 error: true,
@@ -13,61 +13,66 @@ export const addToCartItemController = async(request,response)=>{
             })
         }
         const { productId } = request.body
-        
-        if(!productId){
+
+        if (!productId) {
             return response.status(402).json({
-                message : "Provide productId",
-                error : true,
-                success : false
+                message: "Provide productId",
+                error: true,
+                success: false
             })
         }
 
         const checkItemCart = await CartProductModel.findOne({
-            userId : userId,
-            productId : productId
+            userId: userId,
+            productId: productId
         })
 
-        if(checkItemCart){
-            return response.status(400).json({
-                message : "Item already in cart"
+        if (checkItemCart) {
+            // Return success with existing item instead of error
+            // This makes the API idempotent and prevents errors during cart migration
+            return response.json({
+                data: checkItemCart,
+                message: "Item already in cart",
+                error: false,
+                success: true
             })
         }
 
         const cartItem = new CartProductModel({
-            quantity : 1,
-            userId : userId,
-            productId : productId
+            quantity: 1,
+            userId: userId,
+            productId: productId
         })
         const save = await cartItem.save()
 
-        const updateCartUser = await UserModel.updateOne({ _id : userId},{
-            $push : { 
-                shopping_cart : productId
+        const updateCartUser = await UserModel.updateOne({ _id: userId }, {
+            $push: {
+                shopping_cart: productId
             }
         })
 
         return response.json({
-            data : save,
-            message : "Item add successfully",
-            error : false,
-            success : true
+            data: save,
+            message: "Item add successfully",
+            error: false,
+            success: true
         })
 
-        
+
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
 }
 
-export const getCartItemController = async(request,response)=>{
+export const getCartItemController = async (request, response) => {
     try {
         const userId = request.userId
 
-        if(!userId){
+        if (!userId) {
             return response.status(401).json({
                 message: 'You have not login',
                 error: true,
@@ -75,31 +80,31 @@ export const getCartItemController = async(request,response)=>{
             })
         }
 
-        const cartItem =  await CartProductModel.find({
-            userId : userId
+        const cartItem = await CartProductModel.find({
+            userId: userId
         }).populate('productId')
 
         return response.json({
-            data : cartItem,
-            error : false,
-            success : true
+            data: cartItem,
+            error: false,
+            success: true
         })
 
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
 }
 
-export const updateCartItemQtyController = async(request,response)=>{
+export const updateCartItemQtyController = async (request, response) => {
     try {
-        const userId = request.userId 
-        const { _id,qty } = request.body
+        const userId = request.userId
+        const { _id, qty } = request.body
 
-        if(!userId){
+        if (!userId) {
             return response.status(401).json({
                 message: 'You have not login',
                 error: true,
@@ -107,70 +112,70 @@ export const updateCartItemQtyController = async(request,response)=>{
             })
         }
 
-        if(!_id ||  !qty){
+        if (!_id || !qty) {
             return response.status(400).json({
-                message : "provide _id, qty"
+                message: "provide _id, qty"
             })
         }
 
         const updateCartitem = await CartProductModel.updateOne({
-            _id : _id,
-            userId : userId
-        },{
-            quantity : qty
+            _id: _id,
+            userId: userId
+        }, {
+            quantity: qty
         })
 
         return response.json({
-            message : "Update cart",
-            success : true,
-            error : false, 
-            data : updateCartitem
+            message: "Update cart",
+            success: true,
+            error: false,
+            data: updateCartitem
         })
 
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
 }
 
-export const deleteCartItemQtyController = async(request,response)=>{
+export const deleteCartItemQtyController = async (request, response) => {
     try {
-            const userId = request.userId // middleware
+        const userId = request.userId // middleware
 
-            if(!userId){
-                return response.status(401).json({
-                        message: 'You have not login',
-                        error: true,
-                        success: false
-                })
-            }
-      const { _id } = request.body 
-      
-      if(!_id){
-        return response.status(400).json({
-            message : "Provide _id",
-            error : true,
-            success : false
+        if (!userId) {
+            return response.status(401).json({
+                message: 'You have not login',
+                error: true,
+                success: false
+            })
+        }
+        const { _id } = request.body
+
+        if (!_id) {
+            return response.status(400).json({
+                message: "Provide _id",
+                error: true,
+                success: false
+            })
+        }
+
+        const deleteCartItem = await CartProductModel.deleteOne({ _id: _id, userId: userId })
+
+        return response.json({
+            message: "Item remove",
+            error: false,
+            success: true,
+            data: deleteCartItem
         })
-      }
-
-      const deleteCartItem  = await CartProductModel.deleteOne({_id : _id, userId : userId })
-
-      return response.json({
-        message : "Item remove",
-        error : false,
-        success : true,
-        data : deleteCartItem
-      })
 
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
 }
